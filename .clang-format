@@ -1,0 +1,33 @@
+Cpp11BracedListStyle: 'true'
+ColumnLimit: 100
+IndentCaseLabels: 'false'
+IndentWidth: 4
+PointerAlignment: 'Right'
+SortIncludes: 'true'
+AccessModifierOffset: -4
+AlignAfterOpenBracket: 'DontAlign'
+AllowShortBlocksOnASingleLine: 'false'
+AllowShortCaseLabelsOnASingleLine: 'false'
+AllowShortIfStatementsOnASingleLine: 'false'
+AllowShortLoopsOnASingleLine: 'false'
+AllowShortFunctionsOnASingleLine: None
+BreakConstructorInitializers: BeforeColon
+ConstructorInitializerAllOnOneLineOrOnePerLine: 'true'
+ConstructorInitializerIndentWidth: 0
+ContinuationIndentWidth: 4
+CompactNamespaces: 'false'
+FixNamespaceComments: 'false'
+NamespaceIndentation: 'All'
+BreakBeforeBraces: 'Custom'
+BraceWrapping: {
+	AfterControlStatement: 'true'
+	AfterClass: 'true'
+	AfterEnum: 'true'
+	AfterFunction: 'true'
+	AfterNamespace: 'true'
+	AfterStruct: 'true'
+	AfterUnion: 'true'
+	AfterExternBlock: 'true'
+	BeforeElse: 'true'
+	BeforeCatch: 'true'
+}
