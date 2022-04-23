@@ -1,5 +1,5 @@
+#include "common.h"
 #include "blinker.h"
-#include "context.h"
 #include "gpio.h"
 
 static Context _context;

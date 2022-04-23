@@ -1,6 +1,7 @@
 #include "blinker.h"
-#include "context.h"
+#include "common.h"
 #include "gpio.h"
+#include "motorControl.h"
 #include "timer.h"
 
 #include <msp430.h>
@@ -19,7 +20,7 @@ int main(void)
     context_init();
 
     // configure 32khz clock
-    BCSCTL2 = SELM_3 | SELS;
+    BCSCTL2 = SELM_3 | DIVM_0 | SELS | DIVS_0;
     __enable_interrupt();
 
 #if TEST == 1      // test basic MCU functionality
@@ -40,20 +41,20 @@ int main(void)
 #elif TEST == 2 // test GPIO in/out, timer
     uint8_t ctr = 1U;
 
-    ctx->led.clear();
-    ctx->ledErr.set();
+    gpio_clear(&ctx->led);
+    gpio_set(&ctx->ledErr);
     timer_init();
     timer_setInterval(MS1000);
 
     for (;;)
     {
         ctr++;
-        ctx->ledErr << static_cast<bool>(ctr & 1);
-        ctx->led.toggle();
+        (ctr & 1) ? gpio_set(&ctx->ledErr) : gpio_clear(&ctx->ledErr);
+        gpio_toggle(&ctx->led);
         while (!timeElapsed)
         {
-            if (ctx->swOn)
-                ctx->led.toggle();
+            if (gpio_state(&ctx->swOn))
+                gpio_toggle(&ctx->led);
         }
         timeElapsed = false;
     }
@@ -84,34 +85,30 @@ int main(void)
 #elif TEST == 4 // test motor
     timer_init();
     timer_setInterval(MS250);
-    ctx->led.clear();
-    ctx->ledErr.clear();
+    gpio_clear(&ctx->led);
+    gpio_clear(&ctx->ledErr);
 
     static const uint32_t runDuration = 5000U;
     volatile uint32_t motorTime = 0;
     volatile bool running = false;
-    ctx->rotationMode = RotationMode::OneWay;
+    ctx->rotationMode = OneWay;
 
     while (true)
     {
         if (timer_elapsed(motorTime, runDuration))
         {
-            auto &m = motor();
-
             if (running)
             {
-                // m.stopMotor();
-                ctx->led.clear();
+                motor_stop();
+                gpio_clear(&ctx->led);
             }
             else
             {
-                ctx->led.set();
-                // m.startMotor();
+                gpio_set(&ctx->led);
+                motor_start();
             }
-            running ^= true;
-
+            running = !running;
             motorTime = timer_now();
-            (void)m;
         }
     }
 
@@ -152,14 +149,14 @@ __interrupt_vec(TIMERA1_VECTOR) void ta1_ISR(void)
 __interrupt_vec(WDT_VECTOR) void wdt_ISR(void)
 {
     timer_tick();
-    Context *ctx = context();
     timeElapsed = true;
 #if TEST == 3 || TEST == 4
+    Context *ctx = context();
     blinker_tick(&ctx->ledBlink);
     blinker_tick(&ctx->ledErrBlink);
 #endif
 #if TEST == 4
-    //        motor_tick(motor());
+    motor_tick();
     gpio_toggle(&ctx->ledErr);
 #endif
 }

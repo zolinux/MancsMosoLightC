@@ -21,8 +21,10 @@ add_executable(${PROJECT_NAME}
   src/gpio.h
   src/blinker.c
   src/blinker.h
-  src/context.h
   src/common.c
+  src/common.h
+  src/motorControl.c
+  src/motorControl.h  
 )
 
 # target_link_libraries(${PROJECT_NAME} PRIVATE )
