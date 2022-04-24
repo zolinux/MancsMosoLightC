@@ -25,3 +25,8 @@ cd "C:\ti\BSL-Scripter\DEPRECATED\BSLDEMO"
     py -m msp430.bsl  --invert-reset  -p COM17   -v -e -P c:\work\build\MancsMosoLight-msp430-gcc-Debug\mml.elf
     ```
   
+## USB-UART
+
+To use a USB-UART adapter with `#DTR` controlling the `TEST` pin, the idle state of the `TEST` pin needs to be low, otherwise the JTAG pins will overwrite the GPIO functionality. This may be configured by enabling the **Set RTS on close** in the COM port advanced settings:
+
+![USB-UART converter configuration](doc/usb-uart-cfg.png)
