@@ -88,15 +88,19 @@ int main(void)
     gpio_clear(&ctx->led);
     gpio_clear(&ctx->ledErr);
 
-    static const uint32_t runDuration = 5000U;
+    static const uint32_t offDuration = 3333U;
+    static uint32_t runDuration = 1500U;
     volatile uint32_t motorTime = 0;
     volatile bool running = false;
-    ctx->rotationMode = OneWay;
+    ctx->rotationMode = TwoWays;
+    ctx->dir = Forward;
+    bool initial = true;
 
     while (true)
     {
-        if (timer_elapsed(motorTime, runDuration))
+        if (timer_elapsed(motorTime, running ? runDuration : offDuration) || initial)
         {
+            initial = false;
             if (running)
             {
                 motor_stop();
@@ -104,6 +108,7 @@ int main(void)
             }
             else
             {
+                runDuration += 500; // increment motor-on time by 500ms in each cycle
                 gpio_set(&ctx->led);
                 motor_start();
             }
