@@ -2,6 +2,8 @@
 #include "blinker.h"
 #include "gpio.h"
 
+#include <msp430.h>
+
 static Context _context;
 
 const uint8_t numberOfModes = 2;
@@ -38,4 +40,44 @@ void context_init()
     _context.speed = Fast;
     _context.rotationMode = TwoWays;
     _context.dir = Forward;
+}
+
+uint16_t context_readAdc(const uint8_t channel)
+{
+    const uint16_t ch = (uint16_t)channel << 12;
+    ADC10CTL1 = ch;
+    __nop();
+    __nop();
+    ADC10CTL0 |= ENC | ADC10SC;
+    __nop();
+
+    while (ADC10CTL1 & ADC10BUSY)
+    {
+    }
+
+    return ADC10MEM;
+}
+
+void context_blinkSpeedLed()
+{
+    blinker_setRate(&_context.ledBlink, ledBlinkRatesVsSpeed[(uint8_t)_context.speed]);
+    blinker_setCount(&_context.ledBlink, ledBlinkCountSpeedChange);
+}
+
+void context_incrementSpeed()
+{
+    _context.speed = (Speed)(((uint8_t)_context.speed + 1) % sizeof(ledBlinkRatesVsSpeed));
+}
+
+bool context_enableAdc()
+{
+    ADC10CTL0 = ADC10ON | REFON | SREF_1;
+    ADC10AE = ADC10AE0;
+    return true;
+}
+
+bool context_disableAdc()
+{
+    ADC10CTL0 = 0;
+    return true;
 }

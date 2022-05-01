@@ -23,6 +23,8 @@ add_executable(${PROJECT_NAME}
   src/blinker.h
   src/common.c
   src/common.h
+  src/states.c
+  src/states.h
   src/motorControl.c
   src/motorControl.h  
 )

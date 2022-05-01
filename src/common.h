@@ -55,8 +55,8 @@ typedef struct _Context
 Context *context();
 void context_init();
 
-// bool enableAdc();
-// bool disableAdc();
-// uint16_t readAdc(const uint8_t channel);
-// void blinkSpeedLed();
-// void incrementSpeed();
+bool context_enableAdc();
+bool context_disableAdc();
+uint16_t context_readAdc(const uint8_t channel);
+void context_blinkSpeedLed();
+void context_incrementSpeed();
