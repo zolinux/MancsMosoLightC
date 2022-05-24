@@ -9,7 +9,7 @@
 
 int main(void)
 {
-    Context *ctx = context();
+    Context *const ctx = context();
     __disable_interrupt();
     // stop WDT
     timer_stop();
@@ -17,10 +17,6 @@ int main(void)
 
     // configure 32khz clock
     BCSCTL2 = SELM_3 | DIVM_0 | SELS | DIVS_0;
-    __enable_interrupt();
-    timer_init();
-    timer_setInterval(MS250);
-
     gpio_clear(&ctx->led);
     gpio_clear(&ctx->ledErr);
     gpio_setInterruptEnabledEdge(&ctx->swOn, true);
@@ -29,7 +25,14 @@ int main(void)
     gpio_setInterruptEnabled(&ctx->swFunc, true);
     gpio_setInterruptEnabledEdge(&ctx->irIn, false);
 
-    __low_power_mode_3();
+    timer_init();
+    timer_setInterval(MS250);
+    // timer_stop();
+    __enable_interrupt();
+
+    // __low_power_mode_3();
+    while (true)
+        ; // gpio_set(&ctx->ledErr);
     return 0;
 }
 
@@ -55,7 +58,7 @@ __interrupt_vec(TIMERA1_VECTOR) void ta1_ISR(void)
 }
 __interrupt_vec(WDT_VECTOR) void wdt_ISR(void)
 {
-    Context *ctx = context();
+    Context *const ctx = context();
 
     timer_tick();
     state_tick();

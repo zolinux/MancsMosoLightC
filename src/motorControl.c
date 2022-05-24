@@ -57,7 +57,7 @@ void motor_tick()
         return;
     }
 
-    Context *c = context();
+    Context *const c = context();
 
     switch (state)
     {
@@ -104,7 +104,7 @@ void motor_tick()
 
 void doStartMotor()
 {
-    Context *c = context();
+    Context *const c = context();
     Gpio *const fetArray[] = {&c->motorHP, &c->motorHN, &c->motorLP, &c->motorLN};
     uint8_t toSetIdx = c->dir == Forward ? 0 : 2;
 
@@ -130,7 +130,7 @@ void doStartMotorSpeed(uint8_t pwmPercent)
 
 void doStopMotor()
 {
-    Context *c = context();
+    Context *const c = context();
 
     gpio_clear(&c->motorHP);
     gpio_set(&c->motorHN);

@@ -43,7 +43,7 @@ static void clear()
 
 static void shutdown()
 {
-    Context *c = context();
+    Context *const c = context();
 
     __disable_interrupt();
     context_disableAdc();
@@ -53,16 +53,19 @@ static void shutdown()
     irDeAssertedTime = 0;
     clear();
     state = Boot;
-    timer_stop();
+    // timer_stop();
     __enable_interrupt();
 }
 
+/**
+ * Runs once after turning on. Battery voltage gets measured then proceed to Idle state...
+ */
 static void handleBoot()
 {
     if (!powerOn)
         return;
 
-    Context *c = context();
+    Context *const c = context();
 
     gpio_set(&c->adcEn);
     context_enableAdc();
@@ -80,18 +83,17 @@ static void handleBoot()
     else
     {
         context_blinkSpeedLed();
-        blinker_setCount(&c->ledBlink, ledBlinkCountSpeedChange + 1); // leave LEO on after finish
+        blinker_setCount(&c->ledBlink, ledBlinkCountSpeedChange + 1); // leave LED on after finish
     }
 
     state = Idle;
-    swOnPressedTime = 0;
     irEnabled = false;
     gpio_set(&c->irEn);
 }
 
 static void handleIdle()
 {
-    Context *c = context();
+    Context *const c = context();
     if (timer_elapsed(c->lastActivityTime, inactiveTimeShutdown))
     {
         // automatic turn-off after ... minutes
@@ -114,9 +116,9 @@ static void handleIdle()
 
 static void handleActive()
 {
-    const Context *c = context();
+    Context *const c = context();
     if (!gpio_state(&c->irIn) && !irDeAssertedTime)
-    {
+    { // object moves out of IR sensor range
         irDeAssertedTime = timer_now();
         irAssertedTime = 0;
     }
@@ -131,7 +133,7 @@ static void handleActive()
 void state_tick()
 {
     // do common things
-    Context *c = context();
+    Context *const c = context();
 
     if (swOnPressedTime)
     { // still pressed
@@ -155,7 +157,7 @@ void state_tick()
             swOnPressedTime = 0;
             if (state == Boot)
             { // no power-up yet, it was too short -> go back to off
-                timer_stop();
+              // timer_stop();
             }
             else
             { // speed change
@@ -182,12 +184,12 @@ void state_tick()
 void state_gpio()
 {
     const uint32_t t = timer_now();
-    Context *c = context();
+    Context *const c = context();
     c->lastActivityTime = t;
 
     if (gpio_interrupt(&c->swOn))
     {
-        timer_start();
+        // timer_start();
         if (gpio_state(&c->swOn))
             swOnPressedTime = t;
         gpio_clearInterruptFlag(&c->swOn);
@@ -195,12 +197,12 @@ void state_gpio()
 
     if (gpio_interrupt(&c->swFunc))
     {
-        if (gpio_state(&c->swOn))
+        if (gpio_state(&c->swFunc))
             swFuncPressedTime = t;
         gpio_clearInterruptFlag(&c->swFunc);
     }
 
-    if (gpio_interrupt(&c->irIn))
+    if (irEnabled && gpio_interrupt(&c->irIn))
     {
         gpio_clearInterruptFlag(&c->irIn);
         if (gpio_state(&c->irIn))

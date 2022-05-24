@@ -156,7 +156,7 @@ __interrupt_vec(WDT_VECTOR) void wdt_ISR(void)
     timer_tick();
     timeElapsed = true;
 #if TEST == 3 || TEST == 4
-    Context *ctx = context();
+    Context *const ctx = context();
     blinker_tick(&ctx->ledBlink);
     blinker_tick(&ctx->ledErrBlink);
 #endif

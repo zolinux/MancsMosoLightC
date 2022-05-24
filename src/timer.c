@@ -66,4 +66,5 @@ void timer_stop()
 
 void timer_start()
 {
+    WDTCTL = WDTPW | ((0x00FF & WDTCTL) & ~WDTHOLD);
 }
